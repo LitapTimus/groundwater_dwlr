@@ -1,0 +1,25 @@
+Annual_Ground_Water_Draft_Total: float64
+Annual_Replenishable_Groundwater_Resource: float64
+Date: object
+LAT: float64
+LON: float64
+Month: int64
+Net_Ground_Water_Availability: float64
+SITE_TYPE_Bore Well: bool
+SITE_TYPE_Dug Cum Bore Well: bool
+SITE_TYPE_Dug Well: bool
+SITE_TYPE_Slim Hole: bool
+SITE_TYPE_Tube Well: bool
+Season_Post-Monsoon: bool
+Season_Pre-Monsoon: bool
+Season_Winter: bool
+Stress_Index: float64
+Target: float64
+WL_3m_avg: float64
+WL_3m_trend: float64
+WL_6m_avg: float64
+WL_6m_trend: float64
+Water_Level: float64
+Water_Level_Change: float64
+Water_Level_Lag1: float64
+Year: int64

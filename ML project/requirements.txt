@@ -1,0 +1,12 @@
+python-dotenv
+pandas
+numpy
+certifi
+scikit-learn
+fastapi
+uvicorn[standard]
+pymongo>=4.3.3
+python-multipart
+jinja2
+
+## -e .

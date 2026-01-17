@@ -1,0 +1,96 @@
+# =========================
+# Python cache & bytecode
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =========================
+# Virtual Environments
+# =========================
+venv/
+.env
+.venv/
+.conda/
+conda-env/
+
+# =========================
+# Jupyter Notebook
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# ML Models & Artifacts
+# =========================
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.ckpt
+*.onnx
+artifacts/
+models/
+checkpoints/
+
+# =========================
+# Datasets (RAW / PROCESSED)
+# =========================
+data/
+dataset/
+datasets/
+*.csv
+*.tsv
+*.xlsx
+*.parquet
+
+# =========================
+# Logs & Outputs
+# =========================
+logs/
+*.log
+outputs/
+results/
+prediction_output/
+
+# =========================
+# Experiment Tracking
+# =========================
+mlruns/
+wandb/
+neptune/
+
+# =========================
+# Config & Secrets
+# =========================
+.env
+.env.*
+*.env
+secrets.yaml
+config.yaml
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.iml
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Test & Coverage
+# =========================
+.coverage
+htmlcov/
+.pytest_cache/
+
+# =========================
+# Build & Distribution
+# =========================
+build/
+dist/
+*.egg-info/

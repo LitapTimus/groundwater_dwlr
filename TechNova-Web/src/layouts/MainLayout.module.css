@@ -1,0 +1,39 @@
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.main {
+    flex: 1;
+    margin-left: calc(var(--nav-width) + 2rem);
+    padding: 2rem;
+    background-color: var(--bg-app);
+    min-height: 100vh;
+    transition: margin-left 0.2s ease;
+}
+
+@media (max-width: 900px) {
+    .main {
+        margin-left: 0;
+        padding: 1rem;
+    }
+}
+
+.container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 3rem 2.5rem;
+    animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

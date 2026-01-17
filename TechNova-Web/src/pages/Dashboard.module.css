@@ -1,0 +1,568 @@
+/* Dashbaord */
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    animation: fadeInUp 0.8s ease-out;
+    position: relative;
+    /* Ambient Blue Gradient Background */
+}
+
+.dashboard::before {
+    content: '';
+    position: fixed;
+    top: -10%;
+    right: -10%;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+    border-radius: 50%;
+    animation: pulse 10s infinite alternate;
+}
+
+.dashboard::after {
+    content: '';
+    position: fixed;
+    bottom: -10%;
+    left: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.06) 0%, transparent 60%);
+    z-index: -1;
+    pointer-events: none;
+    border-radius: 50%;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+    position: relative;
+    /* decorative header highlight */
+}
+
+.header::after {
+    content: '';
+    position: absolute;
+    bottom: -1rem;
+    left: 0;
+    width: 60px;
+    height: 6px;
+    background: var(--primary-gradient);
+    border-radius: 4px;
+}
+
+.date {
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0 0 0.5rem 0;
+    opacity: 0.9;
+}
+
+.pageTitle {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, var(--text-main) 0%, rgba(15, 23, 42, 0.7) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    line-height: 1.1;
+}
+
+.iconBtn {
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    width: 60px;
+    height: 60px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    color: var(--text-muted);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(12px);
+}
+
+.iconBtn:hover {
+    background: white;
+    color: var(--primary);
+    transform: translateY(-4px) rotate(8deg);
+    box-shadow: var(--shadow-purple);
+    border-color: var(--primary);
+}
+
+.badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 12px;
+    height: 12px;
+    background: var(--accent-critical);
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px var(--accent-critical-bg);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+/* Alert Banner */
+.alertBanner {
+    background: rgba(255, 255, 255, 0.85);
+    background-image: linear-gradient(120deg, rgba(255, 255, 255, 0.9) 0%, rgba(254, 242, 242, 0.5) 100%);
+    border-radius: var(--radius-xl);
+    padding: 3rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-float);
+    border-left: 0;
+    /* Replaced border with glow */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.4s;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.alertBanner::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: var(--accent-critical);
+    box-shadow: 4px 0 20px rgba(239, 68, 68, 0.4);
+}
+
+.alertBanner:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 25px 50px -12px rgba(239, 68, 68, 0.25);
+}
+
+.alertContent {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+}
+
+.alertHeader {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    color: var(--accent-critical);
+    background: rgba(239, 68, 68, 0.1);
+    padding: 0.5rem 1.25rem;
+    border-radius: 99px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    font-weight: 700;
+}
+
+.alertTitle {
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.alertBanner h2 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: var(--text-main);
+    letter-spacing: -0.03em;
+}
+
+.alertBanner p {
+    margin-bottom: 2.5rem;
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.alertAction {
+    background: white;
+    border: 1px solid var(--accent-critical);
+    color: var(--accent-critical);
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 1rem 2.5rem;
+    border-radius: 99px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.3s;
+    box-shadow: 0 10px 20px -5px rgba(220, 38, 38, 0.15);
+}
+
+.alertAction:hover {
+    background: var(--accent-critical);
+    color: white;
+    box-shadow: 0 15px 30px -5px rgba(220, 38, 38, 0.5);
+    transform: translateY(-3px) scale(1.05);
+}
+
+/* Notification Popup */
+.notificationPopup {
+    position: absolute;
+    top: 4.5rem;
+    right: 0;
+    width: 340px;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-xl);
+    border-radius: var(--radius-lg);
+    z-index: 1000;
+    padding: 1rem;
+    cursor: default;
+    animation: fadeInUp 0.2s ease-out;
+}
+
+.notificationHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding-bottom: 0.5rem;
+}
+
+.notificationHeader h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.clearAll {
+    font-size: 0.75rem;
+    color: var(--primary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.clearAll:hover {
+    text-decoration: underline;
+}
+
+.notificationList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.notificationItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-app);
+    transition: background 0.2s;
+}
+
+.notificationItem:hover {
+    background: #e2e8f0;
+}
+
+.notiIcon {
+    margin-top: 0.2rem;
+    color: var(--primary);
+}
+
+.notiContent {
+    flex: 1;
+}
+
+.notiMessage {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    line-height: 1.4;
+    margin-bottom: 0.2rem;
+}
+
+.notiTime {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.alertDecoration {
+    position: absolute;
+    right: -50px;
+    top: -50px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float 8s ease-in-out infinite;
+}
+
+/* Metrics Grid */
+.metricsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2rem;
+}
+
+/* Split Section */
+.splitSection {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+@media (max-width: 1100px) {
+    .splitSection {
+        grid-template-columns: 1fr;
+    }
+}
+
+.sectionTitle {
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+}
+
+.toolList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.toolBtn {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    width: 100%;
+    padding: 1.75rem;
+    border: none;
+    border-radius: var(--radius-lg);
+    background: white;
+    color: var(--text-main);
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0, 1);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Gradient accents for tools */
+.toolBtn:nth-child(1) {
+    background: var(--secondary-gradient);
+    color: white;
+    box-shadow: 0 10px 20px -5px rgba(8, 145, 178, 0.3);
+}
+
+.toolBtn:nth-child(2) {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.toolBtn:nth-child(2):hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: #F8FAFC;
+}
+
+.toolBtn:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Maps */
+/* Anomalies List */
+.anomList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.anomItem {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+.anomItem::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: transparent;
+    transition: background 0.2s;
+}
+
+.anomItem:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateX(5px) scale(1.02);
+    box-shadow: var(--shadow-md);
+}
+
+.anomItem:hover::before {
+    background: var(--primary);
+}
+
+.anomIconLocation {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+    border-radius: 12px;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.anomIconLocation::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px white;
+    transition: background 0.3s;
+}
+
+.anomItem:hover .anomIconLocation::after {
+    background: var(--primary);
+}
+
+.anomInfo {
+    flex: 1;
+}
+
+.anomId {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.1rem;
+    letter-spacing: 0.05em;
+}
+
+.anomName {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.anomValue {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.valCritical {
+    color: var(--accent-critical);
+    font-weight: 800;
+    font-size: 0.9rem;
+    background: var(--accent-critical-bg);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+}
+
+.valSafe {
+    color: var(--accent-success);
+    font-weight: 700;
+    font-size: 0.9rem;
+    background: var(--accent-success-bg);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+}
+
+.timeAgo {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+/* Map Card Enhanced */
+.mapCard {
+    height: 600px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-glass), 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    background: white;
+}
+
+.mapCard:hover {
+    box-shadow: var(--shadow-xl), 0 0 30px rgba(14, 165, 233, 0.15);
+    /* Blue glow */
+    transform: translateY(-2px);
+}
+
+.mapHeaderOverlay {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    z-index: 500;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 0.75rem 1.25rem;
+    border-radius: 99px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}

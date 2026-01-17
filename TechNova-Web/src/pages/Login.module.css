@@ -1,0 +1,215 @@
+/* JalNivikaran 2.0 Login Experience */
+.loginPage {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Uses global mesh bg body, but we add a dark overlay for contrast */
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    animation: fadeInScale 0.6s ease-out;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.65);
+    padding: 3.5rem;
+    border-radius: var(--radius-2xl);
+    box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.4),
+        inset 0 4px 30px rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    max-width: 900px;
+    width: 90%;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Aurora Borealis Effect behind card */
+.card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(2, 132, 199, 0.1) 0%, transparent 60%);
+    animation: rotateAurora 20s linear infinite;
+    z-index: 0;
+    pointer-events: none;
+}
+
+@keyframes rotateAurora {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.header {
+    margin-bottom: 3.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.header h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.03em;
+    filter: drop-shadow(0 4px 10px rgba(2, 132, 199, 0.2));
+}
+
+.header p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+}
+
+.roleSelection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 3.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+@media (max-width: 600px) {
+    .roleSelection {
+        grid-template-columns: 1fr;
+    }
+}
+
+.roleCard {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    padding: 2.5rem;
+    border-radius: var(--radius-xl);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.25rem;
+    position: relative;
+}
+
+.roleCard:hover {
+    transform: translateY(-8px) scale(1.02);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: var(--shadow-float);
+    border-color: rgba(255, 255, 255, 1);
+}
+
+.roleCard.active {
+    border-color: var(--primary);
+    background: rgba(236, 254, 255, 0.8);
+    box-shadow: 0 0 0 2px var(--primary-glow), var(--shadow-float);
+}
+
+.iconWrapper {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.roleCard:hover .iconWrapper {
+    transform: rotate(-10deg) scale(1.1);
+    box-shadow: var(--shadow-md);
+}
+
+.roleCard.active .iconWrapper {
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4);
+    border-color: transparent;
+    transform: rotate(-10deg) scale(1.1);
+}
+
+.roleCard h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.roleCard p {
+    font-size: 1rem;
+    color: var(--text-muted);
+}
+
+.loginBtn {
+    width: 100%;
+    padding: 1.25rem;
+    border-radius: 99px;
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    font-size: 1.15rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.4);
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.loginBtn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: translateX(-100%);
+}
+
+.loginBtn:not(:disabled):hover::after {
+    animation: shine 1.5s infinite;
+}
+
+@keyframes shine {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.loginBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #CBD5E1;
+    box-shadow: none;
+}
+
+.loginBtn:not(:disabled):hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 35px -5px rgba(2, 132, 199, 0.5);
+    filter: brightness(1.1);
+}

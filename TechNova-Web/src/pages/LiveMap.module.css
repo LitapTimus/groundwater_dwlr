@@ -1,0 +1,403 @@
+.pageContainer {
+    display: flex;
+    height: calc(100vh - 4rem);
+    /* Adjust for general padding if needed, or stick to 100vh */
+    gap: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Sidebar List Section */
+.stationListPanel {
+    width: 400px;
+    background: white;
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-md);
+    border: 1px solid white;
+    z-index: 10;
+    overflow: hidden;
+}
+
+.panelHeader {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: white;
+}
+
+.titleRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.titleRow h2 {
+    font-size: 1.25rem;
+    color: var(--text-main);
+}
+
+.searchBar {
+    position: relative;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+
+.searchInput {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid #E5E0D8;
+    border-radius: var(--radius-md);
+    background: var(--bg-app);
+    font-family: inherit;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.searchInput:focus {
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+.filters {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0 1.5rem 1rem 1.5rem;
+    overflow-x: auto;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    scrollbar-width: none;
+    /* Hide scrollbar */
+}
+
+.filterChip {
+    padding: 0.5rem 1rem;
+    border-radius: 99px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: white;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.filterChip:hover {
+    background: var(--bg-app);
+}
+
+.filterChip.active {
+    background: var(--text-main);
+    color: white;
+    border-color: var(--text-main);
+}
+
+.listContent {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: var(--bg-app);
+}
+
+/* Station Card in List */
+.stationCard {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.stationCard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.stationCard.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.stationName {
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+.stationId {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.cardMetrics {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.levelValue {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1;
+}
+
+.levelUnit {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-left: 2px;
+}
+
+.trend {
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.trend.up {
+    color: var(--accent-success);
+}
+
+.trend.down {
+    color: var(--accent-critical);
+}
+
+.trend.stable {
+    color: var(--accent-warning);
+}
+
+/* Visualization Bars (Fake Sparkline) */
+.sparkBars {
+    display: flex;
+    gap: 4px;
+    align-items: flex-end;
+    height: 24px;
+    margin-top: 0.75rem;
+}
+
+.bar {
+    flex: 1;
+    background: #E5E0D8;
+    border-radius: 2px;
+    transition: height 0.3s;
+}
+
+.bar.highlight {
+    background: var(--secondary);
+}
+
+/* Map Section */
+.mapContainer {
+    flex: 1;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--shadow-md);
+    border: 4px solid white;
+}
+
+.mapControls {
+    position: absolute;
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 500;
+    background: white;
+    padding: 0.25rem;
+    border-radius: 99px;
+    box-shadow: var(--shadow-md);
+    display: flex;
+}
+
+.controlBtn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 99px;
+    border: none;
+    background: transparent;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.controlBtn.active {
+    background: var(--secondary);
+    color: white;
+    box-shadow: 0 2px 8px rgba(107, 142, 158, 0.4);
+}
+
+/* Station Details Panel Overlay */
+.detailsPanel {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    width: 360px;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    overflow-y: auto;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.closeBtn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.closeBtn:hover {
+    background: var(--bg-app);
+    color: var(--text-main);
+}
+
+.detailsHeader {
+    margin-bottom: 1.5rem;
+}
+
+.detailsTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.25rem;
+}
+
+.detailsId {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.statusBadge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.statusBadge.safe {
+    background: rgba(76, 169, 101, 0.1);
+    color: var(--accent-success);
+}
+
+.statusBadge.critical {
+    background: rgba(229, 57, 53, 0.1);
+    color: var(--accent-critical);
+}
+
+.statusBadge.semicritical {
+    background: rgba(255, 160, 0, 0.1);
+    color: var(--accent-warning);
+}
+
+.detailsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.detailItem {
+    background: var(--bg-app);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+}
+
+.detailLabel {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.detailValue {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.detailIcon {
+    color: var(--primary);
+}
+
+.chartContainer {
+    margin-bottom: 1.5rem;
+}
+
+.chartContainer h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+}
+
+.metaInfo {
+    border-top: 1px solid var(--border-light);
+    padding-top: 1rem;
+}
+
+.metaInfo p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.metaInfo strong {
+    color: var(--text-main);
+}
