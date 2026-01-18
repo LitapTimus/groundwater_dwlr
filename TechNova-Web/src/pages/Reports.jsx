@@ -1,9 +1,11 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { ALERTS } from '../data/dummyData';
 import {
     Bell, AlertTriangle, Info, CheckCircle, FileText, Download, Filter
 } from 'lucide-react';
 import styles from './Reports.module.css';
+import API from '../services/api';
 
 // Extended mock notifications for better visual
 const ALL_NOTIFICATIONS = [
@@ -30,32 +32,72 @@ const getIcon = (type) => {
     }
 };
 
-const handleDownload = (file) => {
-    // Simulate report content generation
-    const content = `
-REPORT: ${file.name}
-DATE: ${file.date}
-SIZE: ${file.size}
---------------------------------------------------
-This is a generated report file for ${file.name}.
-It contains detailed analysis and metrics regarding groundwater levels.
-
-[In a real application, this would be a comprehensive PDF or Excel file.]
-    `;
-
-    // Create blob and force download
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${file.name.replace(/\s+/g, '_')}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-};
-
 const Reports = () => {
+    const [stations, setStations] = useState([]);
+    const [selectedStation, setSelectedStation] = useState('');
+    const [generating, setGenerating] = useState(false);
+
+    useEffect(() => {
+        const fetchStations = async () => {
+            try {
+                const res = await API.get('/api/stations'); // Make sure this endpoint exists or mock list
+                // If /api/stations doesn't exist, we might need to fallback. 
+                // But previously we implemented /api/stations in data_loader/app.py? 
+                // Let's check. Yes, /api/map/stations exists. /api/stations might not.
+                // Let's use /api/map/stations which returns list of stations.
+                
+                // Correction: Use /api/map/stations as it is proven to work
+                 const resMap = await API.get('/api/map/stations');
+                 setStations(resMap.data);
+                 if (resMap.data.length > 0) setSelectedStation(resMap.data[0].id);
+                 
+            } catch (error) {
+                console.error("Failed to fetch stations", error);
+                alert("Debug Error: " + error.message);
+                
+                // Fallback using raw fetch
+                try {
+                     const rawRes = await fetch("http://localhost:8001/api/map/stations");
+                     const rawData = await rawRes.json();
+                     setStations(rawData);
+                     if (rawData.length > 0) setSelectedStation(rawData[0].id);
+                } catch (e2) {
+                    alert("Fallback Fetch Failed: " + e2.message);
+                }
+            }
+        };
+        fetchStations();
+    }, []);
+
+    const handleDownloadMock = (file) => {
+        alert("Downloading mock report: " + file.name);
+    };
+
+    const handleGenerateReport = async () => {
+        if (!selectedStation) return;
+        setGenerating(true);
+        try {
+            const response = await API.get(`/api/reports/generate?station_id=${selectedStation}`, {
+                responseType: 'blob',
+            });
+            
+            // Create Blob URL
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Station_Report_${selectedStation}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            
+        } catch (error) {
+            console.error("Failed to generate report", error);
+            alert("Failed to generate report. Please try again.");
+        } finally {
+            setGenerating(false);
+        }
+    };
+
     return (
         <div className={styles.reportsPage}>
             <header className={styles.header}>
@@ -120,7 +162,7 @@ const Reports = () => {
                                 <button
                                     className={styles.downloadBtn}
                                     title="Download Report"
-                                    onClick={() => handleDownload(file)}
+                                    onClick={() => handleDownloadMock(file)}
                                 >
                                     <Download size={20} />
                                 </button>
@@ -130,16 +172,63 @@ const Reports = () => {
 
                     <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'var(--bg-app)', borderRadius: '12px', textAlign: 'center' }}>
                         <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: 'var(--text-main)' }}>Custom Report Generator</h3>
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Select parameters to generate a new comprehensive analysis.</p>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                            Select parameters to generate a new comprehensive analysis.
+                        </p>
+                        
+                        <div style={{marginBottom: '1rem'}}>
+                            {stations.length === 0 ? (
+                                <div style={{padding: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', background: 'rgba(0,0,0,0.05)', borderRadius: '8px'}}>
+                                    Loading stations...
+                                </div>
+                            ) : (
+                                <select 
+                                    value={selectedStation} 
+                                    onChange={(e) => setSelectedStation(e.target.value)}
+                                    style={{
+                                        width: '100%', 
+                                        padding: '0.75rem', 
+                                        borderRadius: '8px', 
+                                        border: '1px solid #ddd',
+                                        fontSize: '0.9rem',
+                                        backgroundColor: '#ffffff',
+                                        color: '#333333',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <option value="" disabled>Select Station to Analyze</option>
+                                    {stations.map(s => (
+                                        <option key={s.id} value={s.id}>{s.name} ({s.status})</option>
+                                    ))}
+                                </select>
+                            )}
+                        </div>
+
                         <button
                             className="btn btn-primary"
-                            style={{ width: '100%' }}
-                            onClick={() => {
-                                alert("Generating custom report... This will be available in the list shortly.");
-                                // In a real app, this would trigger an API call
+                            style={{ 
+                                width: '100%', 
+                                padding: '0.75rem', 
+                                backgroundColor: 'var(--primary)', 
+                                color: 'white', 
+                                border: 'none', 
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                fontWeight: 600,
+                                opacity: generating ? 0.7 : 1
                             }}
+                            onClick={handleGenerateReport}
+                            disabled={generating || !selectedStation}
                         >
-                            Generate New Report
+                            {generating ? (
+                                <span style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem'}}>
+                                    Generating... 
+                                </span>
+                            ) : (
+                                <span style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem'}}>
+                                    <FileText size={18}/> Generate PDF Report
+                                </span>
+                            )}
                         </button>
                     </div>
                 </section>

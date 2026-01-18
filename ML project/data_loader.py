@@ -21,11 +21,24 @@ def load_dataset():
         # Column 10: Net_Ground_Water_Availability (Supply)
         df = pd.read_csv(DATASET_PATH)
         
+        # Calculate Stress Index if missing
+        if 'Stress_Index' not in df.columns:
+            # Stress Index = Annual Draft / Net Availability
+            # Handle division by zero
+            if 'Annual_Ground_Water_Draft_Total' in df.columns and 'Net_Ground_Water_Availability' in df.columns:
+                df['Stress_Index'] = df['Annual_Ground_Water_Draft_Total'] / df['Net_Ground_Water_Availability'].replace(0, 1)
+            else:
+                df['Stress_Index'] = 0
+
         # Ensure 'zone' column exists
         if 'zone' not in df.columns:
-            # Fallback calculation if not present
-            # Stress > 0.8 -> Critical
-            df['zone'] = df.apply(lambda x: 'Critical' if (x.get('Stress_Index', 0) or 0) > 0.8 else 'Safe', axis=1)
+            # > 80% is Critical, > 50% is Warning, else Safe (Simplified)
+            def classify_zone(stress):
+                if stress > 0.8: return "Critical"
+                if stress > 0.5: return "Semi-Critical" 
+                return "Safe"
+                
+            df['zone'] = df['Stress_Index'].apply(classify_zone)
 
     except Exception as e:
         print(f"Error loading dataset: {e}")

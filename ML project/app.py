@@ -805,6 +805,110 @@ async def model_analysis():
     except Exception as e:
         raise GroundwaterException(e, sys)
 
+from groundwater.utils.report_generator import ReportGenerator
+from fastapi.responses import FileResponse
+
+@app.get("/api/reports/generate")
+async def generate_report(station_id: str):
+    try:
+        generator = ReportGenerator()
+        file_path = generator.generate_report(station_id)
+        return FileResponse(file_path, media_type='application/pdf', filename=os.path.basename(file_path))
+    except Exception as e:
+        raise GroundwaterException(e, sys)
+
+# ===============================
+# Farmer Module Endpoints
+# ===============================
+from groundwater.logic.crop_manager import CropManager
+import random
+import math
+
+# Use existing get_nearest_station from data_loader
+from data_loader import get_nearest_station
+
+@app.get("/api/farmer/stats", tags=["farmer"])
+async def farmer_stats(lat: float = 30.9, lon: float = 75.85): # Default to Ludhiana
+    """
+    Returns localized dashboard stats for the farmer based on Lat/Lon.
+    Finds nearest station and returns real groundwater data.
+    """
+    try:
+        # 1. Get Nearest Station Data
+        station_data = get_nearest_station(lat, lon)
+        
+        water_depth = 12.0 # Default
+        status = "Safe"
+        replenish_rate = 2.1
+        distance = 0
+        
+        if station_data:
+            water_depth = station_data['water_level']
+            status = station_data['status']
+            distance = station_data['distance_km']
+
+        # 2. Dynamic Advisory based on Status
+        advisory_msg = "Soil moisture is optimal. Maintain current irrigation cycle."
+        advisory_level = status
+        
+        if status == "Critical":
+            advisory_msg = "Groundwater is CRITICAL. Pause irrigation immediately to prevent pump dry-run."
+        elif status == "Warning":
+            advisory_msg = "Water levels are dropping. Reduce irrigation by 20% this week."
+
+        # 3. Sustainability Score (Inverse of stress or simple mapping)
+        # Mock calculation: Safe=8-10, Warning=5-7, Critical=1-4
+        score = 8.5
+        if status == "Critical": score = 3.2
+        if status == "Warning": score = 6.1
+
+        return {
+            "location_match": {
+                "found": True if station_data else False,
+                "distance_km": distance,
+                "nearest_station": station_data['station_name'] if station_data else "Unknown"
+            },
+            "weather": {
+                "temp": random.randint(28, 35), # Mock dynamic
+                "condition": "Sunny",
+                "humidity": random.randint(30, 60),
+                "wind": random.randint(5, 15)
+            },
+            "sustainability_score": score,
+            "groundwater_depth": water_depth,
+            "replenish_rate": replenish_rate,
+            "advisory": {
+                "level": advisory_level,
+                "message": advisory_msg
+            }
+        }
+    except Exception as e:
+        raise GroundwaterException(e, sys)
+
+class CropPlanRequest(BaseModel):
+    season: str
+    acres: float
+    soil_type: str
+    lat: float = 30.9
+    lon: float = 75.85
+
+@app.post("/api/farmer/crop-plan", tags=["farmer"])
+async def farmer_crop_plan(request: CropPlanRequest):
+    try:
+        # Get water level for location to filter crops
+        station_data = get_nearest_station(request.lat, request.lon)
+        current_level = station_data['water_level'] if station_data else 10.0
+
+        recommendations = CropManager.get_recommendations(
+            season=request.season,
+            acres=request.acres,
+            soil_type=request.soil_type,
+            water_level_m=current_level
+        )
+        return recommendations
+    except Exception as e:
+        raise GroundwaterException(e, sys)
+
 # Run App
 # ===============================
 if __name__ == "__main__":
