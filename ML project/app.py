@@ -10,19 +10,19 @@ from uvicorn import run as app_run
 
 from fastapi.templating import Jinja2Templates
 
-from networksecurity.decision.preset_scenarios import PRESET_SCENARIOS
-from networksecurity.decision.alert_engine import AlertEngine
-from networksecurity.decision.decision_engine import GroundwaterDecisionEngine
-from networksecurity.exception.exception import NetworkSecurityException
-from networksecurity.logging.logger import logging
-from networksecurity.pipeline.training_pipeline import TrainingPipeline
-from networksecurity.utils.main_utils.utils import load_object
-from networksecurity.decision.scenario_simulator import ScenarioSimulator, ScenarioConfig
-from networksecurity.decision.dashboard_aggregator import DashboardAggregator
-from networksecurity.decision.hotspot_detector import HotspotDetector
-from networksecurity.decision.trend_analyzer import TrendAnalyzer
-from networksecurity.decision.geojson_builder import GeoJSONBuilder
-from networksecurity.decision.pdf_report_generator import PDFReportGenerator
+from groundwater.decision.preset_scenarios import PRESET_SCENARIOS
+from groundwater.decision.alert_engine import AlertEngine
+from groundwater.decision.decision_engine import GroundwaterDecisionEngine
+from groundwater.exception.exception import GroundwaterException
+from groundwater.logging.logger import logging
+from groundwater.pipeline.training_pipeline import TrainingPipeline
+from groundwater.utils.main_utils.utils import load_object
+from groundwater.decision.scenario_simulator import ScenarioSimulator, ScenarioConfig
+from groundwater.decision.dashboard_aggregator import DashboardAggregator
+from groundwater.decision.hotspot_detector import HotspotDetector
+from groundwater.decision.trend_analyzer import TrendAnalyzer
+from groundwater.decision.geojson_builder import GeoJSONBuilder
+from groundwater.decision.pdf_report_generator import PDFReportGenerator
 from fastapi.responses import FileResponse
 
 
@@ -59,28 +59,39 @@ async def index():
 # ===============================
 # New GET Endpoints for Live Dashboard
 # ===============================
-from data_loader import get_dashboard_stats, get_stations_for_map, get_historical_trends
+from data_loader import (
+    get_dashboard_stats, 
+    get_stations_for_map, 
+    get_historical_trends,
+    get_stations_list,
+    get_water_level_trend,
+    get_demand_supply_trend,
+    get_stress_index_trend,
+    get_zone_distribution,
+    get_seasonal_pattern,
+    get_stress_vs_water_scatter
+)
 
 @app.get("/api/dashboard/stats", tags=["dashboard-live"])
 async def dashboard_stats():
     try:
         return get_dashboard_stats()
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 
 @app.get("/api/map/stations", tags=["dashboard-live"])
 async def map_stations():
     try:
         return get_stations_for_map()
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 
 @app.get("/api/trends/history", tags=["dashboard-live"])
 async def trends_history():
     try:
         return get_historical_trends()
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 
 from data_loader import get_nearest_station
 
@@ -92,7 +103,7 @@ async def nearest_water_level(lat: float, lon: float):
             return result
         return Response("No station found", status_code=404)
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 
 
 @app.get("/train", tags=["training"])
@@ -106,7 +117,7 @@ async def train_route():
         return Response("Training completed successfully")
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 
 
 @app.post("/predict", tags=["prediction"])
@@ -220,7 +231,7 @@ async def predict_route(request: Request, file: UploadFile = File(...)):
         )
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 
 @app.post("/simulate", tags=["simulation"])
 async def simulate_route(
@@ -347,7 +358,7 @@ async def simulate_route(
         )
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 
 @app.post("/summary/zones", tags=["dashboard"])
 async def zone_summary_route(file: UploadFile = File(...)):
@@ -362,7 +373,7 @@ async def zone_summary_route(file: UploadFile = File(...)):
         return summary
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 
 @app.post("/summary/stress", tags=["dashboard"])
 async def stress_summary_route(file: UploadFile = File(...)):
@@ -377,7 +388,7 @@ async def stress_summary_route(file: UploadFile = File(...)):
         return summary
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 
 @app.post("/summary/full", tags=["dashboard"])
 async def full_dashboard_summary_route(file: UploadFile = File(...)):
@@ -394,7 +405,7 @@ async def full_dashboard_summary_route(file: UploadFile = File(...)):
         return summary
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 
 
 @app.post("/simulate/preset", tags=["simulation"])
@@ -501,7 +512,7 @@ async def simulate_preset_route(
         )
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 @app.post("/summary/by-district", tags=["dashboard"])
 async def summary_by_district(file: UploadFile = File(...)):
     try:
@@ -517,7 +528,7 @@ async def summary_by_district(file: UploadFile = File(...)):
         return summary
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 @app.post("/summary/by-state", tags=["dashboard"])
 async def summary_by_state(file: UploadFile = File(...)):
     try:
@@ -533,7 +544,7 @@ async def summary_by_state(file: UploadFile = File(...)):
         return summary
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 @app.post("/hotspots/top", tags=["hotspots"])
 async def top_hotspots_route(
     file: UploadFile = File(...),
@@ -561,7 +572,7 @@ async def top_hotspots_route(
         }
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 @app.post("/trends/yearly", tags=["trends"])
 async def yearly_trend_api(
     file: UploadFile = File(...),
@@ -588,7 +599,7 @@ async def yearly_trend_api(
         }
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 @app.post("/trends/monthly", tags=["trends"])
 async def monthly_trend_api(
     file: UploadFile = File(...),
@@ -615,7 +626,7 @@ async def monthly_trend_api(
         }
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 @app.post("/trends/by-region", tags=["trends"])
 async def trend_by_region_api(
     file: UploadFile = File(...),
@@ -645,7 +656,7 @@ async def trend_by_region_api(
         }
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 @app.post("/map/geojson", tags=["map"])
 async def geojson_map_api(
     file: UploadFile = File(...),
@@ -669,7 +680,7 @@ async def geojson_map_api(
         return geojson
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
 @app.post("/report/policy-pdf", tags=["report"])
 async def generate_policy_report_api(file: UploadFile = File(...)):
     try:
@@ -695,11 +706,108 @@ async def generate_policy_report_api(file: UploadFile = File(...)):
         )
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)
+        raise GroundwaterException(e, sys)
+
 
 
 # ===============================
+# Analytics Endpoints
+# ===============================
+
+@app.get("/api/analytics/stations", tags=["analytics"])
+async def analytics_stations():
+    try:
+        return get_stations_list()
+    except Exception as e:
+        raise GroundwaterException(e, sys)
+
+@app.get("/api/analytics/trend/water-level", tags=["analytics"])
+async def trend_water_level(station_id: str = None):
+    try:
+        if station_id == "all": station_id = None
+        return get_water_level_trend(station_id)
+    except Exception as e:
+        raise GroundwaterException(e, sys)
+
+@app.get("/api/analytics/trend/demand-supply", tags=["analytics"])
+async def trend_demand_supply(station_id: str = None):
+    try:
+        if station_id == "all": station_id = None
+        return get_demand_supply_trend(station_id)
+    except Exception as e:
+        raise GroundwaterException(e, sys)
+
+@app.get("/api/analytics/trend/stress-index", tags=["analytics"])
+async def trend_stress_index(station_id: str = None):
+    try:
+        if station_id == "all": station_id = None
+        return get_stress_index_trend(station_id)
+    except Exception as e:
+        raise GroundwaterException(e, sys)
+
+@app.get("/api/analytics/zone/distribution", tags=["analytics"])
+async def zone_distribution(station_id: str = None):
+    try:
+        if station_id == "all": station_id = None
+        return get_zone_distribution(station_id)
+    except Exception as e:
+        raise GroundwaterException(e, sys)
+
+@app.get("/api/analytics/seasonal", tags=["analytics"])
+async def seasonal_pattern(station_id: str = None):
+    try:
+        if station_id == "all": station_id = None
+        return get_seasonal_pattern(station_id)
+    except Exception as e:
+        raise GroundwaterException(e, sys)
+
+@app.get("/api/analytics/scatter/stress-water", tags=["analytics"])
+async def scatter_stress_water(station_id: str = None):
+    try:
+        if station_id == "all": station_id = None
+        return get_stress_vs_water_scatter(station_id)
+    except Exception as e:
+        raise GroundwaterException(e, sys)
+
+
+# ===============================
+
+from groundwater.pipeline.forecasting import ForecastingPipeline
+
+@app.get("/api/predict/forecast", tags=["prediction"])
+async def predict_forecast(
+    station_id: str = None, 
+    years: int = 5,
+    demand_change_pct: float = 0.0, 
+    supply_change_pct: float = 0.0
+):
+    try:
+        pipeline = ForecastingPipeline()
+        if station_id == "all": station_id = None
+        
+        forecast = pipeline.predict_future(
+            station_id=station_id,
+            years=years,
+            demand_change_pct=demand_change_pct,
+            supply_change_pct=supply_change_pct
+        )
+        return forecast
+    except Exception as e:
+        raise GroundwaterException(e, sys)
+
+from groundwater.pipeline.model_analysis import ModelAnalysis
+
+@app.get("/api/model/analysis", tags=["prediction"])
+async def model_analysis():
+    try:
+        analysis = ModelAnalysis()
+        return analysis.get_analysis_data()
+    except Exception as e:
+        raise GroundwaterException(e, sys)
+
 # Run App
 # ===============================
 if __name__ == "__main__":
     app_run(app, host="0.0.0.0", port=8001)
+
+

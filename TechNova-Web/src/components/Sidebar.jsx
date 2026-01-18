@@ -26,9 +26,13 @@ const Sidebar = ({ onLogout }) => {
           <BarChart3 size={20} />
           <span>Analytics</span>
         </NavLink>
-        <NavLink to="/simulation" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ''}`}>
+        <NavLink to="/prediction" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ''}`}>
           <Activity size={20} />
           <span>Future Prediction</span>
+        </NavLink>
+        <NavLink to="/model-performance" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ''}`}>
+          <Settings size={20} />
+          <span>Model Analysis</span>
         </NavLink>
         <NavLink to="/reports" className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ''}`}>
           <FileText size={20} />

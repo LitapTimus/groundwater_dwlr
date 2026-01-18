@@ -1,225 +1,208 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    BarChart, Bar, Legend, ComposedChart, Line
+    BarChart, Bar, Legend, ComposedChart, Line,
+    PieChart, Pie, Cell, ScatterChart, Scatter
 } from 'recharts';
 import styles from './Analytics.module.css';
 import API from '../services/api';
 
-// Mock data generators
-const generateHistory = (days) => {
-    const data = [];
-    const today = new Date();
-    let level = 12.5;
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF'];
 
-    for (let i = days; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        level += (Math.random() - 0.45) * 0.2;
-        data.push({
-            date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            level: Number(level.toFixed(2)),
-        });
-    }
-    return data;
-};
+const Analytics = () => {
+    // State
+    const [viewMode, setViewMode] = useState('national'); // 'national' | 'station'
+    const [stations, setStations] = useState([]);
+    const [selectedStation, setSelectedStation] = useState('');
+    
+    // Data States
+    const [waterLevelData, setWaterLevelData] = useState([]);
+    const [demandSupplyData, setDemandSupplyData] = useState([]);
+    const [stressIndexData, setStressIndexData] = useState([]);
+    const [zoneDistData, setZoneDistData] = useState([]);
+    const [seasonalData, setSeasonalData] = useState([]);
+    const [scatterData, setScatterData] = useState([]);
 
-const RECHARGE_DATA = [
-    { month: 'Jan', rainfall: 15, recharge: 1.2 },
-    { month: 'Feb', rainfall: 22, recharge: 1.5 },
-    { month: 'Mar', rainfall: 10, recharge: 0.8 },
-    { month: 'Apr', rainfall: 5, recharge: 0.5 },
-    { month: 'May', rainfall: 45, recharge: 2.1 },
-    { month: 'Jun', rainfall: 120, recharge: 5.5 },
-    { month: 'Jul', rainfall: 350, recharge: 12.4 },
-    { month: 'Aug', rainfall: 310, recharge: 11.2 },
-    { month: 'Sep', rainfall: 180, recharge: 6.8 },
-];
-
-const DEMAND_MOCK = [
-    { year: '2021', supply: 480, demand: 460 },
-    { year: '2022', supply: 475, demand: 485 },
-    { year: '2023', supply: 460, demand: 510 },
-    { year: '2024', supply: 455, demand: 535 },
-    { year: '2025', supply: 440, demand: 560 },
-];
-
-const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-        return (
-            <div className={styles.tooltip}>
-                <p className={styles.tooltipLabel}>{label}</p>
-                {payload.map((entry, index) => (
-                    <p key={index} className={styles.tooltipValue} style={{ color: entry.color }}>
-                        {entry.name}: {entry.value}
-                    </p>
-                ))}
-            </div>
-        );
-    }
-    return null;
-};
-
-
-// Error Boundary Component
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null, errorInfo: null };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error("ErrorBoundary caught an error", error, errorInfo);
-    this.setState({ errorInfo });
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ padding: '20px', color: 'red' }}>
-          <h2>Something went wrong.</h2>
-          <details style={{ whiteSpace: 'pre-wrap' }}>
-            {this.state.error && this.state.error.toString()}
-            <br />
-            {this.state.errorInfo && this.state.errorInfo.componentStack}
-          </details>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
-const AnalyticsContent = () => {
-    const [timeRange, setTimeRange] = useState(90); // Default 3 Months
-    const [historyData, setHistoryData] = useState([]);
-
-    // Fetch History Data
+    // Load Stations on Mount
     useEffect(() => {
-        const fetchHistory = async () => {
+        API.get('/api/analytics/stations')
+            .then(res => {
+                setStations(res.data);
+                if (res.data.length > 0) setSelectedStation(res.data[0].id);
+            })
+            .catch(err => console.error("Failed to load stations", err));
+    }, []);
+
+    // Load Charts Data when filters change
+    useEffect(() => {
+        const stationQuery = viewMode === 'station' ? selectedStation : 'all';
+        if (!stationQuery) return;
+
+        const fetchData = async () => {
             try {
-                const res = await API.get('/api/trends/history');
-                setHistoryData(res.data);
+                // Parallel requests for speed
+                const [p1, p2, p3, p4, p5, p6] = await Promise.all([
+                    API.get('/api/analytics/trend/water-level', { params: { station_id: stationQuery } }),
+                    API.get('/api/analytics/trend/demand-supply', { params: { station_id: stationQuery } }),
+                    API.get('/api/analytics/trend/stress-index', { params: { station_id: stationQuery } }),
+                    API.get('/api/analytics/zone/distribution', { params: { station_id: stationQuery } }),
+                    API.get('/api/analytics/seasonal', { params: { station_id: stationQuery } }),
+                    API.get('/api/analytics/scatter/stress-water', { params: { station_id: stationQuery } })
+                ]);
+
+                setWaterLevelData(p1.data);
+                setDemandSupplyData(p2.data);
+                setStressIndexData(p3.data);
+                setZoneDistData(p4.data);
+                setSeasonalData(p5.data);
+                setScatterData(p6.data);
+
             } catch (error) {
-                console.error("Failed to fetch history", error);
+                console.error("Error fetching analytics data", error);
             }
         };
-        fetchHistory();
-    }, [timeRange]);
 
-    // Filter recharge data for display sake (showing subset for shorter durations)
-    const rechargeDisplay = useMemo(() => {
-        if (timeRange === 30) return RECHARGE_DATA.slice(-2);
-        if (timeRange === 90) return RECHARGE_DATA.slice(-4);
-        return RECHARGE_DATA;
-    }, [timeRange]);
+        fetchData();
+    }, [viewMode, selectedStation]);
 
     return (
         <div className={styles.analyticsPage}>
             <header className={styles.header}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                        <h1 className={styles.title}>Advanced Analytics</h1>
-                        <p className={styles.subtitle}>Historical analysis of groundwater trends and resource allocation.</p>
+                <div>
+                    <h1 className={styles.title}>Advanced Analytics</h1>
+                    <p className={styles.subtitle}>
+                        {viewMode === 'national' ? 'National Overview of Groundwater Resources' : 'Station-Specific Detailed Analysis'}
+                    </p>
+                </div>
+
+                <div className={styles.controls}>
+                    {/* View Toggle */}
+                    <div className={styles.toggleContainer}>
+                        <button 
+                            className={`${styles.toggleBtn} ${viewMode === 'national' ? styles.active : ''}`}
+                            onClick={() => setViewMode('national')}
+                        >
+                            National View
+                        </button>
+                        <button 
+                            className={`${styles.toggleBtn} ${viewMode === 'station' ? styles.active : ''}`}
+                            onClick={() => setViewMode('station')}
+                        >
+                            Station View
+                        </button>
                     </div>
 
-                    <div className={styles.timeFilters}>
-                        <span className={styles.filterLabel}>Time Range:</span>
-                        <button
-                            className={`${styles.filterBtn} ${timeRange === 30 ? styles.active : ''}`}
-                            onClick={() => setTimeRange(30)}
+                    {/* Station Dropdown (Only in Station Mode) */}
+                    {viewMode === 'station' && (
+                        <select 
+                            className={styles.stationSelect}
+                            value={selectedStation} 
+                            onChange={(e) => setSelectedStation(e.target.value)}
                         >
-                            30 Days
-                        </button>
-                        <button
-                            className={`${styles.filterBtn} ${timeRange === 90 ? styles.active : ''}`}
-                            onClick={() => setTimeRange(90)}
-                        >
-                            3 Months
-                        </button>
-                        <button
-                            className={`${styles.filterBtn} ${timeRange === 180 ? styles.active : ''}`}
-                            onClick={() => setTimeRange(180)}
-                        >
-                            6 Months
-                        </button>
-                    </div>
+                            {stations.map(s => (
+                                <option key={s.id} value={s.id}>{s.name} ({s.district})</option>
+                            ))}
+                        </select>
+                    )}
                 </div>
             </header>
 
             <div className={styles.grid}>
-
-                {/* 1. Historical Water Level */}
-                <div className={styles.card} style={{ gridColumn: 'span 2', height: '400px' }}>
-                    <div className={styles.cardHeader}>
-                        <h3 className={styles.cardTitle}>Historical Water Levels</h3>
-                    </div>
-                    <ResponsiveContainer width="100%" height="100%">
-                        {historyData && historyData.length > 0 ? (
-                            <AreaChart data={historyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                                <defs>
-                                    <linearGradient id="colorLevel" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#6B8E9E" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#6B8E9E" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E0D8" />
-                                <XAxis
-                                    dataKey="date"
-                                    axisLine={false}
-                                    tickLine={false}
-                                    minTickGap={30}
-                                />
-                                <YAxis domain={['auto', 'auto']} axisLine={false} tickLine={false} />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Area type="monotone" dataKey="level" stroke="#6B8E9E" fillOpacity={1} fill="url(#colorLevel)" strokeWidth={2} name="Level (m)" />
-                            </AreaChart>
-                        ) : (
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: '#888' }}>
-                                Loading or No Data Available...
-                            </div>
-                        )}
+                
+                {/* 1. Groundwater Trend */}
+                <div className={styles.card}>
+                    <h3>🌊 Groundwater Level Trend</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <AreaChart data={waterLevelData}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                            <XAxis dataKey="Year" />
+                            <YAxis reversed={true} label={{ value: 'Depth (mbgl)', angle: -90, position: 'insideLeft' }} />
+                            <Tooltip />
+                            <Area type="monotone" dataKey="Water_Level" stroke="#8884d8" fill="#8884d8" name="Water Level (mbgl)" />
+                        </AreaChart>
                     </ResponsiveContainer>
                 </div>
 
-                {/* 2. Demand Supply Graph */}
-                <div className={styles.card} style={{ height: '400px' }}>
-                    <div className={styles.cardHeader}>
-                        <h3 className={styles.cardTitle}>Demand vs Supply Trends</h3>
-                    </div>
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={DEMAND_MOCK} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E0D8" />
-                            <XAxis dataKey="year" axisLine={false} tickLine={false} />
-                            <YAxis axisLine={false} tickLine={false} />
-                            <Tooltip content={<CustomTooltip />} />
+                {/* 2. Demand vs Supply */}
+                <div className={styles.card}>
+                    <h3>⚖️ Demand vs Availability</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <ComposedChart data={demandSupplyData}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                            <XAxis dataKey="Year" />
+                            <YAxis />
+                            <Tooltip />
                             <Legend />
-                            <Bar dataKey="supply" fill="#6B8E9E" radius={[4, 4, 0, 0]} name="Water Supply" barSize={30} />
-                            <Bar dataKey="demand" fill="#D95D0F" radius={[4, 4, 0, 0]} name="Water Demand" barSize={30} />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-
-                {/* 3. Recharge Trends */}
-                <div className={styles.card} style={{ height: '400px' }}>
-                    <div className={styles.cardHeader}>
-                        <h3 className={styles.cardTitle}>Rainfall & Recharge Correlation</h3>
-                    </div>
-                    <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart data={rechargeDisplay} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                            <CartesianGrid stroke="#E5E0D8" strokeDasharray="3 3" vertical={false} />
-                            <XAxis dataKey="month" axisLine={false} tickLine={false} />
-                            <YAxis yAxisId="left" orientation="left" stroke="#6B8E9E" axisLine={false} tickLine={false} />
-                            <YAxis yAxisId="right" orientation="right" stroke="#D95D0F" axisLine={false} tickLine={false} />
-                            <Tooltip content={<CustomTooltip />} />
-                            <Legend />
-                            <Bar yAxisId="left" dataKey="rainfall" fill="#6B8E9E" barSize={20} radius={[4, 4, 0, 0]} name="Rainfall (mm)" />
-                            <Line yAxisId="right" type="monotone" dataKey="recharge" stroke="#D95D0F" strokeWidth={3} name="Recharge (m)" dot={{ r: 4, fill: '#D95D0F' }} />
+                            <Bar dataKey="demand" fill="#ff7300" name="Demand" />
+                            <Line type="monotone" dataKey="supply" stroke="#387908" strokeWidth={3} name="Availability" />
                         </ComposedChart>
+                    </ResponsiveContainer>
+                </div>
+
+                {/* 3. Stress Index Trend */}
+                <div className={styles.card}>
+                    <h3>⚠️ Stress Index Trend</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <LineChartWrapper data={stressIndexData} dataKey="Stress_Index" color="#ff0000" name="Stress Index" />
+                    </ResponsiveContainer>
+                </div>
+
+                {/* 4. Zone Distribution */}
+                <div className={styles.card}>
+                    <h3>🛡️ Zone Classification</h3>
+                    <div style={{ height: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                         {/* If Station View, show Text; If National, show Pie */}
+                         {viewMode === 'station' ? (
+                             <div style={{ textAlign: 'center' }}>
+                                 <h4>Current Zone</h4>
+                                 <h1 style={{ color: getZoneColor(zoneDistData[0]?.name) }}>
+                                     {zoneDistData[0]?.name || 'N/A'}
+                                 </h1>
+                             </div>
+                         ) : (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie 
+                                        data={zoneDistData} 
+                                        cx="50%" cy="50%" 
+                                        innerRadius={60} 
+                                        outerRadius={80} 
+                                        fill="#8884d8" 
+                                        paddingAngle={5} 
+                                        dataKey="value"
+                                        label
+                                    >
+                                        {zoneDistData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={getZoneColor(entry.name)} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
+                         )}
+                    </div>
+                </div>
+
+                {/* 5. Seasonal Pattern */}
+                <div className={styles.card}>
+                    <h3>🍂 Seasonal Water Pattern</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <LineChartWrapper reversedY={true} data={seasonalData} xKey="Month" dataKey="Water_Level" color="#82ca9d" name="Avg Depth (mbgl)" />
+                    </ResponsiveContainer>
+                </div>
+
+                {/* 6. Stress vs Water Level Scatter */}
+                <div className={styles.card}>
+                    <h3>📉 Stress vs Water Level</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                            <CartesianGrid />
+                            <XAxis type="number" dataKey="stress_index" name="Stress Index" unit="" />
+                            <YAxis type="number" dataKey="water_level" name="Depth" unit="mbgl" reversed={true} label={{ value: 'Depth (mbgl)', angle: -90, position: 'insideLeft' }} />
+                            <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                            <Scatter name="Stations" data={scatterData} fill="#8884d8" />
+                        </ScatterChart>
                     </ResponsiveContainer>
                 </div>
 
@@ -228,12 +211,25 @@ const AnalyticsContent = () => {
     );
 };
 
-const Analytics = () => {
-    return (
-        <ErrorBoundary>
-            <AnalyticsContent />
-        </ErrorBoundary>
-    );
+// Helper Components & Functions
+const getZoneColor = (zone) => {
+    switch(zone) {
+        case 'Safe': return '#00C49F';
+        case 'Semi-Critical': return '#FFBB28';
+        case 'Critical': return '#FF8042';
+        case 'Over-Exploited': return '#FF0000';
+        default: return '#888';
+    }
 };
+
+const LineChartWrapper = ({ data, xKey="Year", dataKey, color, name, reversedY=false }) => (
+    <ComposedChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+        <XAxis dataKey={xKey} />
+        <YAxis reversed={reversedY} />
+        <Tooltip />
+        <Line type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2} dot={{ r: 3 }} connectNulls={true} name={name} />
+    </ComposedChart>
+);
 
 export default Analytics;

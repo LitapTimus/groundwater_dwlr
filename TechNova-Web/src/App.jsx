@@ -10,6 +10,10 @@ import Login from './pages/Login';
 import FarmerDashboard from './pages/FarmerDashboard';
 import Predict from "./pages/Predict";
 
+import FuturePrediction from './pages/FuturePrediction';
+
+import ModelPerformance from './pages/ModelPerformance';
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null); // 'researcher' | 'farmer'
@@ -33,6 +37,8 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="simulation" element={<Simulation />} />
           <Route path="analytics" element={<Analytics />} />
+          <Route path="prediction" element={<FuturePrediction />} />
+          <Route path="model-performance" element={<ModelPerformance />} />
           <Route path="reports" element={<Reports />} />
           <Route path="map" element={<LiveMap />} />
         </Route>

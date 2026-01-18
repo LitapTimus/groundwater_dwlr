@@ -30,10 +30,11 @@ def get_requirements()->List[str]:
     return requirement_lst
 print(get_requirements())
 setup(
-    name="NetworkSecurity",
+    name="groundwater",
     version="0.0.1",
     author="Sumit Patil",
     author_email="sumitpatil141005@gmail.com",
     packages=find_packages(),
     install_requires=get_requirements()
 )
+
